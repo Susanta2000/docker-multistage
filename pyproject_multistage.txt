@@ -1,0 +1,36 @@
+# Use a base image with Python
+FROM python:3.11-slim as builder
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install Poetry
+RUN pip install poetry==1.8.4
+
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
+
+# Copy the Poetry files first and install dependencies
+COPY poetry.lock pyproject.toml ./
+
+# Installing Dependencies and removing cache directory
+RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+
+# Final Stage
+FROM python:3.11-slim-buster
+
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
+
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
+# Copy the rest of the app code
+COPY . .
+
+EXPOSE 5003
+
+# Set the command to run your application
+CMD ["python", "main.py"]
+# CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5003"]
