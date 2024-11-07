@@ -34,3 +34,5 @@ EXPOSE 5003
 # Set the command to run your application
 CMD ["python", "main.py"]
 # CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5003"]
+
+# Reference: https://medium.com/@albertazzir/blazing-fast-python-docker-builds-with-poetry-a78a66f5aed0
